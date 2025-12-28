@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="@dimen/common_padding">
-
+    android:paddingTop="14dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="@dimen/common_padding">
 
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="16dp">
+        android:layout_height="56dp"
+        android:layout_marginBottom="16dp"
+        tools:ignore="ExtraText,TextSizeCheck">>
 
         <ImageButton
             android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/back"
-            android:background="@null"
+            android:background="@android:color/transparent"
             android:contentDescription="Назад"
             app:tint="#FF000000" />
 
@@ -30,52 +32,55 @@
             android:text="@string/settings"
             android:textColor="@color/black"
             android:textSize="@dimen/settings_title_text_size"
-            android:paddingStart="@dimen/settings_title_padding_start" />
+            android:paddingStart="22dp" />
     </LinearLayout>
-
-
-
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:text="@string/dark_theme"
-            android:textColor="@color/black"
-            android:textSize="@dimen/settings_button_text_size"
-            android:gravity="start"/>
-
-        <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/settings_button_height"
-            android:checked="true" />
-    </LinearLayout>
-
-
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="16dp">
+        android:layout_marginTop="@dimen/settings_menu_item_margin_top"
+        android:layout_marginBottom="@dimen/settings_menu_item_margin_bottom">
 
         <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:text="@string/share_app"
+            android:gravity="start"
+            android:text="@string/dark_theme"
+            android:textAppearance="@string/dark_theme"
             android:textColor="@color/black"
-            android:textSize="@dimen/settings_button_text_size"
-            android:gravity="start"/>
+            android:textSize="@dimen/settings_menu_text_size"
+            android:background="@android:color/transparent" />
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="@dimen/settings_menu_item_margin_bottom"
+        android:layout_marginBottom="@dimen/settings_menu_item_margin_bottom">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="@string/share_app"
+            android:textAppearance="@string/share_app"
+            android:textColor="@color/black"
+            android:textSize="@dimen/settings_menu_text_size"
+            android:background="@android:color/transparent" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -88,18 +93,21 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="16dp">
+        android:layout_marginTop="@dimen/settings_menu_item_margin_bottom"
+        android:layout_marginBottom="@dimen/settings_menu_item_margin_bottom">
 
         <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:gravity="start"
             android:text="@string/support"
+            android:textAppearance="@string/support"
             android:textColor="@color/black"
-            android:textSize="@dimen/settings_button_text_size"
-            android:gravity="start"/>
+            android:textSize="@dimen/settings_menu_text_size"
+            android:background="@android:color/transparent" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -112,18 +120,21 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="16dp">
+        android:layout_marginTop="@dimen/settings_menu_item_margin_bottom"
+        android:layout_marginBottom="@dimen/settings_menu_item_margin_bottom">
 
         <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:gravity="start"
             android:text="@string/user_agreement"
+            android:textAppearance="@string/user_agreement"
             android:textColor="@color/black"
-            android:textSize="@dimen/settings_button_text_size"
-            android:gravity="start"/>
+            android:textSize="@dimen/settings_menu_text_size"
+            android:background="@android:color/transparent" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -131,8 +142,5 @@
             android:paddingStart="10dp"
             android:src="@drawable/arrow_right" />
     </LinearLayout>
-
 </LinearLayout>
-
-
 

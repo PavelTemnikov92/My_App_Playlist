@@ -5,10 +5,19 @@
     <dimen name="settings_title_padding_start">16dp</dimen>
     <dimen name="settings_title_text_size">24sp</dimen>
     <dimen name="settings_button_text_size">15sp</dimen>
-    <dimen name="main_title_text_size">80px</dimen>
-    <dimen name="main_button_text_size">60px</dimen>
+    <dimen name="main_title_text_size">22sp</dimen>
+    <dimen name="main_button_text_size">22sp</dimen>
     <dimen name="settings_padding">16dp</dimen>
-    <dimen name="search_button_text_size">60px</dimen>
-    <dimen name="media_button_text_size">60px</dimen>
+    <dimen name="search_button_text_size">22sp</dimen>
+    <dimen name="media_button_text_size">22sp</dimen>
     <dimen name="settings_button_height">48dp</dimen>
+    <dimen name="main_button_margin_bottom">16dp</dimen>
+    <dimen name="main_screen_horizontal_padding">24dp</dimen>
+    <dimen name="main_title_margin_top">48dp</dimen>
+    <dimen name="main_title_margin_bottom">48dp</dimen>
+    <dimen name="settings_menu_text_size">16sp</dimen>
+    <dimen name="settings_menu_item_margin_top">16dp</dimen>
+    <dimen name="settings_menu_item_margin_bottom">8dp</dimen>
+    <dimen name="settings_header_padding_top">24dp</dimen>
+    <dimen name="settings_header_padding_bottom">24dp</dimen>
 </resources>
