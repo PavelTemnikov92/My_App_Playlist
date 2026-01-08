@@ -85,6 +85,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
             android:paddingStart="24dp"
             android:src="@drawable/share" />
     </LinearLayout>
