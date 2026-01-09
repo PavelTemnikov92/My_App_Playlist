@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--suppress ALL -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingTop="14dp"
-    android:paddingStart="16dp"
+    android:paddingStart="8dp"
     android:paddingEnd="16dp"
     android:paddingBottom="@dimen/common_padding">
 
@@ -15,7 +16,9 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginBottom="16dp"
-        tools:ignore="ExtraText,TextSizeCheck">>
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        tools:ignore="ExtraText,TextSizeCheck">
 
         <ImageButton
             android:id="@+id/backButton"
@@ -29,10 +32,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:text="@string/settings"
             android:textColor="@color/black"
-            android:textSize="@dimen/settings_title_text_size"
-            android:paddingStart="22dp" />
+            android:textSize="@dimen/settings_title_text_size" />
     </LinearLayout>
 
 
@@ -49,6 +52,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="start"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:text="@string/dark_theme"
             android:textAppearance="@string/dark_theme"
             android:textColor="@color/black"
@@ -56,9 +61,12 @@
             android:background="@android:color/transparent" />
 
         <Switch
+            android:id="@+id/switchDarkTheme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:checked="false"
+            android:layout_marginStart="24dp"
             tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
     </LinearLayout>
 
@@ -76,6 +84,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="start"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:text="@string/share_app"
             android:textAppearance="@string/share_app"
             android:textColor="@color/black"
@@ -85,8 +95,9 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="24dp"
-            android:src="@drawable/share" />
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="24dp"
+            android:src="@drawable/light_mode_share" />
     </LinearLayout>
 
 
@@ -103,6 +114,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="start"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:text="@string/support"
             android:textAppearance="@string/support"
             android:textColor="@color/black"
@@ -112,8 +125,9 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="24dp"
-            android:src="@drawable/support" />
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="24dp"
+            android:src="@drawable/light_mode_support" />
     </LinearLayout>
 
 
@@ -130,6 +144,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="start"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:text="@string/user_agreement"
             android:textAppearance="@string/user_agreement"
             android:textColor="@color/black"
@@ -139,8 +155,10 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="24dp"
-            android:src="@drawable/arrow_right" />
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="24dp"
+            android:src="@drawable/light_mode_arrow_right" />
     </LinearLayout>
 </LinearLayout>
+
 

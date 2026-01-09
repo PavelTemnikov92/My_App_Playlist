@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.practicum.myapp"
-    compileSdk = 36
+    compileSdk = 35  // Обновлено до рекомендуемой версии
 
     defaultConfig {
         applicationId = "com.practicum.myapp"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 34  // Обновлено до рекомендуемой версии
         versionCode = 1
         versionName = "1.0"
 
@@ -32,6 +32,12 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+    }
+
+    packaging {
+        resources {
+            excludes += setOf("META-INF/*.kotlin_module", "META-INF/AL2.0", "META-INF/LGPL2.1")
+        }
     }
 }
 
