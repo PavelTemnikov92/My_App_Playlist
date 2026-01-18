@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.practicum.myapp"
-    compileSdk = 36
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.practicum.myapp"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -33,15 +33,32 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    packaging {
+        resources {
+            excludes += setOf("/META-INF/{AL2.0,LGPL2.1}")
+        }
+    }
 }
+
+
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
+    implementation(libs.androidx.appcompat) {
+        exclude(group = "androidx.fragment", module = "fragment")
+    }
+    implementation(libs.material) {
+        exclude(group = "androidx.fragment", module = "fragment")
+    }
+    implementation(libs.androidx.activity) {
+        exclude(group = "androidx.fragment", module = "fragment")
+    }
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.recyclerview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }

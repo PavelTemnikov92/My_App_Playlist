@@ -10,4 +10,6 @@
     <string name="user_agreement">Пользовательское соглашение</string>
     <string name="search_screen">Экран поиска</string>
     <string name="media_screen">Экран медиатеки</string>
+    <string name="back_button_description">Назад</string>
+    <string name="search_hint">Поиск</string>
 </resources>
