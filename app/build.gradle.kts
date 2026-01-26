@@ -44,18 +44,12 @@ android {
 
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat) {
-        exclude(group = "androidx.fragment", module = "fragment")
-    }
-    implementation(libs.material) {
-        exclude(group = "androidx.fragment", module = "fragment")
-    }
-    implementation(libs.androidx.activity) {
-        exclude(group = "androidx.fragment", module = "fragment")
-    }
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.recyclerview)
+    implementation("androidx.fragment:fragment:1.5.7")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

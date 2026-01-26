@@ -13,4 +13,6 @@
     <color name="colorButtonBackgroundSettings">@color/white</color>
     <color name="colorOnBackgroundSettings">@color/black</color>
     <color name="search_field_background">#E0E0E0</color>
+    <color name="color_on_surface_light">#000000</color>
+    <color name="color_on_surface_variant_light">#757575</color>
 </resources>

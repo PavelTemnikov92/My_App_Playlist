@@ -9,8 +9,9 @@
 <color name="white">#FFFFFFFF</color>
 <color name="blue">#3772E7</color>
 <color name="gray_search_bg">#E6E8EB</color>
-<color name="main_background_color">@color/blue</color>
-<color name="colorButtonBackgroundSettings">@color/white</color>
 <color name="colorOnBackgroundSettings">@color/black</color>
 <color name="search_field_background">#E0E0E0</color>
+<color name="color_on_surface_dark">#FFFFFF</color>
+<color name="color_on_surface_variant_dark">#BDBDBD</color>
+    <color name="main_background_color">@color/black</color>
 </resources>
