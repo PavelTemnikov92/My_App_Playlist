@@ -1,6 +1,6 @@
 [versions]
-agp = "8.13.2"  # Latest stable version of AGP
-kotlin = "2.0.21"  # Latest stable version of Kotlin
+agp = "9.0.0"  # Latest stable version of AGP
+kotlin = "2.2.10"  # Latest stable version of Kotlin
 coreKtx = "1.9.0"  # Стабильная версия core-ktx
 junit = "4.13.2"
 junitVersion = "1.1.5"
