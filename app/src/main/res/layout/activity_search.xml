@@ -4,66 +4,95 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?attr/colorSurface"
     android:orientation="vertical"
     android:paddingHorizontal="16dp"
     android:paddingTop="16dp">
 
-    <!-- Заголовок -->
-    <TextView
-        style="@style/TextAppearance.SettingsTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="@string/search" />
-
-    <!-- Поисковое поле -->
+    <!-- Заголовок и кнопка назад -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/back_button_description"
+            android:src="@drawable/back"
+            android:layout_marginEnd="16dp"
+            app:tint="?attr/colorOnSurface"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search"
+            style="@style/TextAppearance.SettingsTitle" />
+    </LinearLayout>
+
+
+    <!-- Поисковое поле -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:minHeight="56dp"
         android:background="@drawable/rounded_search_field_background"
         android:layout_marginBottom="16dp">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/light_mode"
-            android:contentDescription="@string/search_icon_description"
-            android:layout_marginEnd="8dp" />
-
-        <EditText
-            android:id="@+id/searchEditText"
-            android:layout_width="0dp"
+        <LinearLayout
+        android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:background="@null"
-            android:hint="@string/search_hint"
-            android:textColor="#000000"
-            android:textColorHint="#757575"
-            android:imeOptions="actionSearch"
-            android:inputType="text|textCapSentences"
-            android:maxLines="1"
-            android:scrollHorizontally="true"
-            android:singleLine="true"
-            android:textSize="16sp"
-            android:paddingVertical="12dp"
-            android:layout_marginEnd="8dp" />
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/light_mode"
+                android:contentDescription="@string/search_icon_description"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp" />
+
+            <EditText
+                android:id="@+id/searchEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:background="@null"
+                android:hint="@string/search_hint"
+                android:textColor="#000000"
+                android:textColorHint="#757575"
+                android:imeOptions="actionSearch"
+                android:inputType="text|textCapSentences"
+                android:maxLines="1"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:textSize="16sp"
+                android:paddingVertical="12dp"
+                android:layout_marginEnd="8dp" />
+
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/clearSearchButton"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="12dp"
             android:background="@android:color/transparent"
             android:contentDescription="@string/clear_search_description"
             android:src="@drawable/ic_clear_24"
             android:visibility="gone"
             android:padding="12dp" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Результаты поиска -->
     <androidx.recyclerview.widget.RecyclerView
@@ -73,93 +102,12 @@
         android:layout_weight="1"
         android:layout_marginBottom="8dp" />
 
-    <!-- Tab Bar -->
-    <LinearLayout
-        android:id="@+id/tabContainer"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal"
-        android:layout_gravity="bottom">
 
-        <LinearLayout
-            android:id="@+id/searchTab"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/light_mode"
-                android:contentDescription="@string/search_tab_description"
-                app:tint="@color/tab_icon_color" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/search"
-                android:textSize="12sp"
-                android:textColor="@color/tab_icon_color" />
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/mediaTab"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
 
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/media_tab_description"
-                android:src="@drawable/nota"
-                app:tint="@color/tab_icon_color" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/media"
-                android:textSize="12sp"
-                android:textColor="@color/tab_icon_color" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/settingsTab"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/light_mode_seting"
-                android:contentDescription="@string/settings_tab_description"
-                app:tint="@color/tab_icon_color" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/settings"
-                android:textSize="12sp"
-                android:textColor="@color/tab_icon_color" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-</LinearLayout>
 
 
 

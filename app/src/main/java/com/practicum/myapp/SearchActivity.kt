@@ -10,6 +10,7 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -20,10 +21,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var searchEditText: EditText
     private lateinit var clearSearchButton: ImageButton
     private lateinit var searchResultsRecyclerView: RecyclerView
-    private lateinit var searchTab: LinearLayout
-    private lateinit var mediaTab: LinearLayout
-    private lateinit var settingsTab: LinearLayout
-    private lateinit var tabContainer: LinearLayout
+    private lateinit var backButton: ImageButton
     private var searchText: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,12 +37,9 @@ class SearchActivity : AppCompatActivity() {
         searchEditText = findViewById(R.id.searchEditText)
         clearSearchButton = findViewById(R.id.clearSearchButton)
         searchResultsRecyclerView = findViewById(R.id.searchResultsRecyclerView)
+        backButton = findViewById(R.id.backButton)
 
-        // Находим области в нижней панели
-        searchTab = findViewById(R.id.searchTab)
-        mediaTab = findViewById(R.id.mediaTab)
-        settingsTab = findViewById(R.id.settingsTab)
-        tabContainer = findViewById(R.id.tabContainer)
+
     }
 
     private fun setupClickListeners() {
@@ -79,21 +74,15 @@ class SearchActivity : AppCompatActivity() {
         clearSearchButton.setOnClickListener {
             searchEditText.setText("")
             searchEditText.clearFocus()
+
+            // Скрыть клавиатуру
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(searchEditText.windowToken, 0)
         }
 
-        // Обработка нажатий на области нижней панели
-        searchTab.setOnClickListener {
-            // Переход на SearchActivity (текущий экран, ничего не делаем)
-        }
-
-        mediaTab.setOnClickListener {
-            val intent = Intent(this@SearchActivity, MediaActivity::class.java)
-            startActivity(intent)
-        }
-
-        settingsTab.setOnClickListener {
-            val intent = Intent(this@SearchActivity, SettingsActivity::class.java)
-            startActivity(intent)
+        // Обработка нажатия на кнопку назад
+        backButton.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
 
         // Установить начальное состояние видимости кнопки очистки
@@ -167,12 +156,10 @@ class SearchActivity : AppCompatActivity() {
             val isKeyboardDetected = heightDifference > keyboardThreshold
 
             if (isKeyboardDetected && !isKeyboardShowing) {
-                // Клавиатура только что появилась - скрываем tab_bar
-                tabContainer.visibility = View.GONE
+                // Клавиатура только что появилась
                 isKeyboardShowing = true
             } else if (!isKeyboardDetected && isKeyboardShowing) {
-                // Клавиатура исчезла - показываем tab_bar
-                tabContainer.visibility = View.VISIBLE
+                // Клавиатура исчезла
                 isKeyboardShowing = false
             }
         }

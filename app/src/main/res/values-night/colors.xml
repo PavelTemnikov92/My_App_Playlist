@@ -13,5 +13,5 @@
 <color name="search_field_background">#E0E0E0</color>
 <color name="color_on_surface_dark">#FFFFFF</color>
 <color name="color_on_surface_variant_dark">#BDBDBD</color>
-    <color name="main_background_color">@color/black</color>
+    <color name="main_background_color">@color/dark_background</color>
 </resources>
