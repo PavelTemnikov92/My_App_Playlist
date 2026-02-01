@@ -18,4 +18,6 @@
     <color name="color_on_surface_dark">#FFFFFF</color>
     <color name="color_on_surface_variant_dark">#BDBDBD</color>
     <color name="dark_background">#1A1B22</color>
+    <color name="search_icon_tint">@color/color_on_surface_light</color>
+    <color name="search_hint_color">@color/color_on_surface_variant_light</color>
 </resources>
