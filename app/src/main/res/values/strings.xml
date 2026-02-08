@@ -12,4 +12,9 @@
     <string name="media_screen">Экран медиатеки</string>
     <string name="back_button_description">Назад</string>
     <string name="search_hint">Поиск</string>
+    <string name="clear_search_description">Очистить поиск</string>
+    <string name="search_icon_description">Иконка поиска</string>
+    <string name="search_tab_description">Вкладка поиска</string>
+    <string name="media_tab_description">Вкладка медиатеки</string>
+    <string name="settings_tab_description">Вкладка настроек</string>
 </resources>
