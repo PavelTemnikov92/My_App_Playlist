@@ -16,12 +16,14 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
 
 class SearchActivity : AppCompatActivity() {
     private lateinit var searchEditText: EditText
     private lateinit var clearSearchButton: ImageButton
     private lateinit var searchResultsRecyclerView: RecyclerView
     private lateinit var backButton: ImageButton
+    private lateinit var trackAdapter: TrackAdapter
     private var searchText: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +33,7 @@ class SearchActivity : AppCompatActivity() {
         initViews()
         setupClickListeners()
         setupKeyboardListener()
+        setupRecyclerView()
     }
 
     private fun initViews() {
@@ -38,8 +41,18 @@ class SearchActivity : AppCompatActivity() {
         clearSearchButton = findViewById(R.id.clearSearchButton)
         searchResultsRecyclerView = findViewById(R.id.searchResultsRecyclerView)
         backButton = findViewById(R.id.backButton)
+    }
 
+    private fun setupRecyclerView() {
+        val playlistApp = application as PlaylistApplication
+        val tracks = playlistApp.initializeTracks()
+        allTracks = tracks
+        trackAdapter = TrackAdapter()
+        searchResultsRecyclerView.adapter = trackAdapter
+        searchResultsRecyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
 
+        // Устанавливаем начальный список
+        trackAdapter.updateTracks(tracks)
     }
 
     private fun setupClickListeners() {
@@ -102,9 +115,24 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    private var allTracks: List<Track> = emptyList()
+
     private fun performSearch(query: String) {
-        // Здесь будет реализация поиска
-        // В реальном приложении здесь будет фильтрация данных
+        if (allTracks.isEmpty()) {
+            val playlistApp = application as PlaylistApplication
+            allTracks = playlistApp.initializeTracks()
+        }
+
+        val filteredTracks = if (query.isNotEmpty()) {
+            allTracks.filter { track ->
+                track.trackName.contains(query, ignoreCase = true) ||
+                track.artistName.contains(query, ignoreCase = true)
+            }
+        } else {
+            allTracks
+        }
+
+        trackAdapter.updateTracks(filteredTracks)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
