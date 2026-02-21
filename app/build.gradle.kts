@@ -44,21 +44,17 @@ android {
 
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat) {
-        exclude(group = "androidx.fragment", module = "fragment")
-    }
-    implementation(libs.material) {
-        exclude(group = "androidx.fragment", module = "fragment")
-    }
-    implementation(libs.androidx.activity) {
-        exclude(group = "androidx.fragment", module = "fragment")
-    }
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.recyclerview)
+    implementation("androidx.fragment:fragment:1.5.7")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    implementation("com.google.android.material:material:1.6.1")
+    implementation("com.github.bumptech.glide:glide:4.14.2")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
 }

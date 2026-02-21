@@ -1,15 +1,23 @@
 package com.practicum.myapp
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
 
 class SettingsActivity : AppCompatActivity() {
+    private lateinit var sharedPrefs: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
+
+        // Инициализация SharedPreferences
+        sharedPrefs = getSharedPreferences("app_settings", MODE_PRIVATE)
 
         val backButton = findViewById<ImageButton>(R.id.backButton)
         backButton.setOnClickListener {
@@ -32,6 +40,11 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val switchDarkTheme = findViewById<android.widget.Switch>(R.id.switchDarkTheme)
+
+        // Установка начального состояния переключателя на основе сохраненной настройки
+        val isDarkThemeEnabled = sharedPrefs.getBoolean("dark_theme_enabled", false)
+        switchDarkTheme.isChecked = isDarkThemeEnabled
+
         switchDarkTheme.setOnCheckedChangeListener { _, isChecked ->
             onDarkThemeChanged(isChecked)
         }
@@ -69,8 +82,20 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun onDarkThemeChanged(isChecked: Boolean) {
-        // Здесь можно добавить логику переключения темы
-        // Для примера просто выводим состояние в лог
-        // В реальном приложении здесь будет код для переключения между светлой/темной темой
+        // Сохраняем состояние темы в SharedPreferences
+        sharedPrefs.edit {
+            putBoolean("dark_theme_enabled", isChecked)
+        }
+
+        // Переключаем тему приложения
+        if (isChecked) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+
+        // Перезапускаем активность для применения новой темы
+        recreate()
     }
 }
+
