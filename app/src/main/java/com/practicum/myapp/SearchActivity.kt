@@ -1,39 +1,50 @@
 package com.practicum.myapp
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewTreeObserver
-import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.practicum.myapp.api.RetrofitClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class SearchActivity : AppCompatActivity() {
     private lateinit var searchEditText: EditText
     private lateinit var clearSearchButton: ImageButton
     private lateinit var searchResultsRecyclerView: RecyclerView
     private lateinit var backButton: ImageButton
+    private lateinit var retryButton: Button
     private lateinit var trackAdapter: TrackAdapter
+
+    // Заглушки
+    private lateinit var emptyResultLayout: LinearLayout
+    private lateinit var errorLayout: LinearLayout
+
     private var searchText: String = ""
+    private var isSearching = false
+    private var lastSearchQuery: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
         initViews()
+        setupRecyclerView()
         setupClickListeners()
         setupKeyboardListener()
-        setupRecyclerView()
     }
 
     private fun initViews() {
@@ -41,64 +52,80 @@ class SearchActivity : AppCompatActivity() {
         clearSearchButton = findViewById(R.id.clearSearchButton)
         searchResultsRecyclerView = findViewById(R.id.searchResultsRecyclerView)
         backButton = findViewById(R.id.backButton)
+        retryButton = findViewById(R.id.retryButton)
+        emptyResultLayout = findViewById(R.id.emptyResultLayout)
+        errorLayout = findViewById(R.id.errorLayout)
     }
 
     private fun setupRecyclerView() {
-        val playlistApp = application as PlaylistApplication
-        val tracks = playlistApp.initializeTracks()
-        allTracks = tracks
         trackAdapter = TrackAdapter()
         searchResultsRecyclerView.adapter = trackAdapter
-        searchResultsRecyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
-
-        // Устанавливаем начальный список
-        trackAdapter.updateTracks(tracks)
+        searchResultsRecyclerView.layoutManager = LinearLayoutManager(this)
     }
 
     private fun setupClickListeners() {
-        // Добавляем новый TextWatcher с заглушкой для будущих задач
-        val searchWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // Заглушка для будущей функциональности
+        // Обработка нажатия на кнопку Done на клавиатуре
+        searchEditText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val query = searchEditText.text.toString()
+                if (query.isNotBlank()) {
+                    performSearch(query)
+                    // Скрыть клавиатуру
+                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(searchEditText.windowToken, 0)
+                }
+                true
+            } else {
+                false
             }
+        }
+
+        // TextWatcher для отслеживания текста
+        val searchWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Показать/скрыть кнопку очистки в зависимости от наличия текста
                 clearSearchButton.visibility = if (s.isNullOrEmpty()) {
-                    android.view.View.GONE
+                    View.GONE
                 } else {
-                    android.view.View.VISIBLE
+                    View.VISIBLE
                 }
-
-                // Сохраняем текст в переменную
                 searchText = s?.toString() ?: ""
             }
 
-            override fun afterTextChanged(s: android.text.Editable?) {
-                // Выполнить поиск при изменении текста
-                performSearch(s.toString())
-            }
+            override fun afterTextChanged(s: Editable?) {}
         }
-
-        // Применяем TextWatcher к полю поиска
         searchEditText.addTextChangedListener(searchWatcher)
 
-        // Обработка нажатия на кнопку очистки
+        // Кнопка очистки
         clearSearchButton.setOnClickListener {
             searchEditText.setText("")
             searchEditText.clearFocus()
-
             // Скрыть клавиатуру
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(searchEditText.windowToken, 0)
+            // Скрыть кнопку очистки
+            clearSearchButton.visibility = View.GONE
+            // Очистить список результатов
+            trackAdapter.updateTracks(emptyList())
+            // Показать RecyclerView (пустой)
+            showRecyclerView()
+            // Сбросить последний поисковый запрос
+            lastSearchQuery = ""
         }
 
-        // Обработка нажатия на кнопку назад
+        // Кнопка повторной попытки
+        retryButton.setOnClickListener {
+            if (lastSearchQuery.isNotBlank()) {
+                performSearch(lastSearchQuery)
+            }
+        }
+
+        // Кнопка назад
         backButton.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        // Установить начальное состояние видимости кнопки очистки
         updateClearButtonVisibility()
     }
 
@@ -109,51 +136,82 @@ class SearchActivity : AppCompatActivity() {
 
     private fun updateClearButtonVisibility() {
         clearSearchButton.visibility = if (searchEditText.text.isNullOrEmpty()) {
-            android.view.View.GONE
+            View.GONE
         } else {
-            android.view.View.VISIBLE
+            View.VISIBLE
         }
     }
 
-    private var allTracks: List<Track> = emptyList()
-
     private fun performSearch(query: String) {
-        if (allTracks.isEmpty()) {
-            val playlistApp = application as PlaylistApplication
-            allTracks = playlistApp.initializeTracks()
+        if (query.isBlank()) {
+            trackAdapter.updateTracks(emptyList())
+            showRecyclerView()
+            return
         }
 
-        val filteredTracks = if (query.isNotEmpty()) {
-            allTracks.filter { track ->
-                track.trackName.contains(query, ignoreCase = true) ||
-                track.artistName.contains(query, ignoreCase = true)
+        if (isSearching) return
+        isSearching = true
+        lastSearchQuery = query
+
+        showRecyclerView()
+
+        RetrofitClient.itunesApi.search(query).enqueue(object : Callback<ItunesResponse> {
+            override fun onResponse(call: Call<ItunesResponse>, response: Response<ItunesResponse>) {
+                isSearching = false
+
+                if (response.isSuccessful && response.body() != null) {
+                    val results = response.body()?.results ?: emptyList()
+
+                    if (results.isEmpty()) {
+                        showEmptyResult()
+                    } else {
+                        trackAdapter.updateTracks(results)
+                        showRecyclerView()
+                    }
+                } else {
+                    showError()
+                }
             }
-        } else {
-            allTracks
-        }
 
-        trackAdapter.updateTracks(filteredTracks)
+            override fun onFailure(call: Call<ItunesResponse>, t: Throwable) {
+                isSearching = false
+                showError()
+            }
+        })
+    }
+
+    private fun showRecyclerView() {
+        searchResultsRecyclerView.visibility = View.VISIBLE
+        emptyResultLayout.visibility = View.GONE
+        errorLayout.visibility = View.GONE
+    }
+
+    private fun showEmptyResult() {
+        searchResultsRecyclerView.visibility = View.GONE
+        emptyResultLayout.visibility = View.VISIBLE
+        errorLayout.visibility = View.GONE
+    }
+
+    private fun showError() {
+        searchResultsRecyclerView.visibility = View.GONE
+        emptyResultLayout.visibility = View.GONE
+        errorLayout.visibility = View.VISIBLE
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        // Сохраняем текст из EditText в Bundle
         outState.putString("search_text", searchText)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        // Достаем данные из Bundle
         searchText = savedInstanceState.getString("search_text", "")
-        // Устанавливаем восстановленные данные обратно в EditText
         searchEditText.setText(searchText)
-        // Обновляем видимость кнопки очистки в соответствии с восстановленным текстом
         updateClearButtonVisibility()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        // Удаляем слушатель чтобы избежать утечки памяти
         val rootView = findViewById<View>(android.R.id.content)
         rootView.viewTreeObserver.removeOnGlobalLayoutListener(keyboardLayoutListener)
     }
@@ -166,28 +224,20 @@ class SearchActivity : AppCompatActivity() {
             val rootView = findViewById<View>(android.R.id.content)
             val rect = Rect()
             rootView.getWindowVisibleDisplayFrame(rect)
-
-            // При использовании adjustResize getWindowVisibleDisplayFrame дает размеры окна без учета клавиатуры
-            // Поэтому мы будем отслеживать изменение высоты окна
             val currentHeight = rect.height()
 
-            // Устанавливаем начальную высоту при первом вызове
             if (initialHeight == 0) {
                 initialHeight = currentHeight
             }
 
-            // Определяем, появилась ли клавиатура, по изменению высоты окна
-            // Если высота уменьшилась значительно (например, более чем на 200px), значит клавиатура появилась
             val heightDifference = initialHeight - currentHeight
-            val keyboardThreshold = 200 // порог, при котором считаем, что клавиатура появилась
+            val keyboardThreshold = 200
 
             val isKeyboardDetected = heightDifference > keyboardThreshold
 
             if (isKeyboardDetected && !isKeyboardShowing) {
-                // Клавиатура только что появилась
                 isKeyboardShowing = true
             } else if (!isKeyboardDetected && isKeyboardShowing) {
-                // Клавиатура исчезла
                 isKeyboardShowing = false
             }
         }

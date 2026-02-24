@@ -19,16 +19,17 @@ class TrackAdapter : ListAdapter<Track, TrackAdapter.TrackViewHolder>(TrackDiffC
         private val artworkImageView: ImageView = itemView.findViewById(R.id.artworkImageView)
 
         fun bind(item: Track) {
-            trackNameTextView.text = item.trackName
-            artistNameTextView.text = item.artistName
+            // Обработка nullable полей с безопасными значениями по умолчанию
+            trackNameTextView.text = item.trackName ?: ""
+            artistNameTextView.text = item.artistName ?: ""
             trackTimeTextView.text = item.trackTime
 
             // Загрузка изображения с использованием Glide
             Glide.with(itemView)
                 .load(item.artworkUrl100)
-                .placeholder(R.drawable.rounded_corner_background) // Плейсхолдер при загрузке
-                .error(R.drawable.rounded_corner_background) // Плейсхолдер при ошибке (например, нет интернета)
-                .fitCenter() // Используем fitCenter для масштабирования
+                .placeholder(R.drawable.rounded_corner_background)
+                .error(R.drawable.rounded_corner_background)
+                .fitCenter()
                 .into(artworkImageView)
         }
     }
