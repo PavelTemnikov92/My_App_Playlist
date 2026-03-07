@@ -17,4 +17,10 @@
     <string name="search_tab_description">Вкладка поиска</string>
     <string name="media_tab_description">Вкладка медиатеки</string>
     <string name="settings_tab_description">Вкладка настроек</string>
+    <string name="empty_result_description">Нет результатов</string>
+    <string name="empty_result_message">Ничего не нашлось</string>
+    <string name="error_description">Ошибка</string>
+    <string name="error_title">Проблемы со связью</string>
+    <string name="error_message">Загрузка не удалась. Проверьте подключение к интернету</string>
+    <string name="retry_button">Обновить</string>
 </resources>
