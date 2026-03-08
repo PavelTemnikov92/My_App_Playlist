@@ -20,4 +20,6 @@
     <color name="dark_background">#1A1B22</color>
     <color name="search_icon_tint">@color/color_on_surface_light</color>
     <color name="search_bar_icon_and_hint_color">#AEAFB4</color>
+    <color name="clear_button_icon_tint">@color/white</color>
+    <color name="clear_button_text_color">@color/white</color>
 </resources>
