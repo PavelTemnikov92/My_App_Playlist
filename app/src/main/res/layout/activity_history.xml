@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="16dp">
+
+    <!-- Заголовок и кнопка назад -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/back_button_description"
+            android:src="@drawable/back"
+            app:tint="?attr/colorOnSurface" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="28dp"
+            android:text="@string/history_title"
+            style="@style/TextAppearance.SettingsTitle" />
+
+        <ImageButton
+            android:id="@+id/clearHistoryButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/button__2_"
+            android:contentDescription="@string/clear_history_description"
+            android:src="@drawable/ic_clear_24"
+            android:padding="6dp"
+            app:tint="@color/clear_button_icon_tint" />
+    </LinearLayout>
+
+    <!-- История поиска -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/historyRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Заглушка: история пуста -->
+    <LinearLayout
+        android:id="@+id/emptyHistoryLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/no"
+            android:contentDescription="@string/empty_history_description"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/empty_history_message"
+            style="@style/TextAppearance.EmptyResult" />
+
+    </LinearLayout>
+
+</LinearLayout>
