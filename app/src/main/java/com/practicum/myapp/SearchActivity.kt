@@ -92,7 +92,8 @@ class SearchActivity : AppCompatActivity() {
         trackAdapter = TrackAdapter { track ->
             // Добавление трека в историю при клике
             HistoryManager.addTrack(track)
-            loadHistory() // Обновить историю
+            // Скрыть историю после добавления трека
+            hideHistorySection()
         }
         searchResultsRecyclerView.adapter = trackAdapter
         searchResultsRecyclerView.layoutManager = LinearLayoutManager(this)
