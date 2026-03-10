@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingTop="12dp"
-    android:paddingBottom="12dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     android:background="?attr/colorSurface">
 
     <LinearLayout
@@ -15,10 +15,10 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/artworkImageView"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:scaleType="centerCrop"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="8dp"
             android:src="@drawable/rounded_corner_background"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay_Corner_Size_2dp"
             xmlns:app="http://schemas.android.com/apk/res-auto" />
@@ -53,7 +53,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_gravity="start">
+                android:layout_gravity="start"
+                android:layout_marginTop="1dp">
 
                 <TextView
                     android:id="@+id/artistNameTextView"
