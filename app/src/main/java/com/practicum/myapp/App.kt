@@ -1,16 +1,56 @@
 package com.practicum.myapp
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.PreferenceManager
 
-class PlaylistApplication : Application() {
+class App : Application() {
+    
+    var darkTheme: Boolean = false
+        private set
+    
     override fun onCreate() {
         super.onCreate()
+        
+        // Инициализация HistoryManager
+        HistoryManager.init(this)
+        
+        // Получаем SharedPreferences
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        
+        // Получаем сохранённое значение темы (по умолчанию false - светлая тема)
+        darkTheme = prefs.getBoolean("dark_theme_enabled", false)
+        
+        // Применяем тему
+        applyTheme(darkTheme)
+    }
+    
+    fun switchTheme(darkThemeEnabled: Boolean) {
+        darkTheme = darkThemeEnabled
+        
+        // Сохраняем состояние темы в SharedPreferences
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        prefs.edit().putBoolean("dark_theme_enabled", darkThemeEnabled).apply()
+        
+        // Применяем тему
+        applyTheme(darkThemeEnabled)
+    }
+    
+    private fun applyTheme(darkThemeEnabled: Boolean) {
+        AppCompatDelegate.setDefaultNightMode(
+            if (darkThemeEnabled) {
+                AppCompatDelegate.MODE_NIGHT_YES
+            } else {
+                AppCompatDelegate.MODE_NIGHT_NO
+            }
+        )
     }
 
     fun initializeTracks(): ArrayList<Track> {
         val tracks = ArrayList<Track>()
 
         tracks.add(Track(
+            trackId = 1L,
             trackName = "Smells Like Teen Spirit",
             artistName = "Nirvana",
             trackTimeMillis = 301000L,
@@ -18,6 +58,7 @@ class PlaylistApplication : Application() {
         ))
 
         tracks.add(Track(
+            trackId = 2L,
             trackName = "Billie Jean",
             artistName = "Michael Jackson",
             trackTimeMillis = 295000L,
@@ -25,6 +66,7 @@ class PlaylistApplication : Application() {
         ))
 
         tracks.add(Track(
+            trackId = 3L,
             trackName = "Stayin' Alive",
             artistName = "Bee Gees",
             trackTimeMillis = 250000L,
@@ -32,6 +74,7 @@ class PlaylistApplication : Application() {
         ))
 
         tracks.add(Track(
+            trackId = 4L,
             trackName = "Whole Lotta Love",
             artistName = "Led Zeppelin",
             trackTimeMillis = 333000L,
@@ -39,6 +82,7 @@ class PlaylistApplication : Application() {
         ))
 
         tracks.add(Track(
+            trackId = 5L,
             trackName = "Sweet Child O'Mine",
             artistName = "Guns N' Roses",
             trackTimeMillis = 303000L,

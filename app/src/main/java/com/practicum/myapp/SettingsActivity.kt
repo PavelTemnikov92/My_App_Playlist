@@ -1,23 +1,17 @@
 package com.practicum.myapp
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.edit
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsActivity : AppCompatActivity() {
-    private lateinit var sharedPrefs: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
-
-        // Инициализация SharedPreferences
-        sharedPrefs = getSharedPreferences("app_settings", MODE_PRIVATE)
 
         val backButton = findViewById<ImageButton>(R.id.backButton)
         backButton.setOnClickListener {
@@ -39,14 +33,14 @@ class SettingsActivity : AppCompatActivity() {
             openUserAgreement()
         }
 
-        val switchDarkTheme = findViewById<android.widget.Switch>(R.id.switchDarkTheme)
+        val themeSwitcher = findViewById<SwitchMaterial>(R.id.themeSwitcher)
 
-        // Установка начального состояния переключателя на основе сохраненной настройки
-        val isDarkThemeEnabled = sharedPrefs.getBoolean("dark_theme_enabled", false)
-        switchDarkTheme.isChecked = isDarkThemeEnabled
+        // Получаем текущее состояние темы из приложения
+        val app = application as App
+        themeSwitcher.isChecked = app.darkTheme
 
-        switchDarkTheme.setOnCheckedChangeListener { _, isChecked ->
-            onDarkThemeChanged(isChecked)
+        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
+            app.switchTheme(checked)
         }
     }
 
@@ -79,23 +73,6 @@ class SettingsActivity : AppCompatActivity() {
             data = android.net.Uri.parse("https://yandex.ru/legal/practicum_offer/ru/")
         }
         startActivity(agreementIntent)
-    }
-
-    private fun onDarkThemeChanged(isChecked: Boolean) {
-        // Сохраняем состояние темы в SharedPreferences
-        sharedPrefs.edit {
-            putBoolean("dark_theme_enabled", isChecked)
-        }
-
-        // Переключаем тему приложения
-        if (isChecked) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        }
-
-        // Перезапускаем активность для применения новой темы
-        recreate()
     }
 }
 

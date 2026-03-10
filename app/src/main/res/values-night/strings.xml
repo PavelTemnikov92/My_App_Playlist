@@ -6,4 +6,8 @@
     <string name="error_title">Проблемы со связью</string>
     <string name="error_message">Загрузка не удалась. Проверьте подключение к интернету</string>
     <string name="retry_button">Обновить</string>
+    <string name="history_title">История поиска</string>
+    <string name="clear_history_description">Очистить историю</string>
+    <string name="empty_history_description">История пуста</string>
+    <string name="empty_history_message">История поиска пуста</string>
 </resources>

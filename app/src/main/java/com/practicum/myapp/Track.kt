@@ -3,6 +3,9 @@ package com.practicum.myapp
 import com.google.gson.annotations.SerializedName
 
 data class Track(
+    @SerializedName("trackId")
+    val trackId: Long? = null,
+    
     @SerializedName("trackName")
     val trackName: String? = null,
     

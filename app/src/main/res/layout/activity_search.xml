@@ -98,6 +98,53 @@
 
     </FrameLayout>
 
+    <!-- Подсказка -->
+    <TextView
+        android:id="@+id/searchHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:textAlignment="center"
+        android:textColor="?attr/colorOnSurface"
+        android:text="@string/search_hint_message"
+        android:visibility="gone" />
+
+    <!-- История поиска -->
+    <LinearLayout
+        android:id="@+id/historySection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/you_searched"
+            android:gravity="center"
+            style="@style/TextAppearance.SettingsTitle"
+            android:layout_marginBottom="8dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/historyRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:nestedScrollingEnabled="true" />
+        <ImageButton
+            android:id="@+id/clearHistoryButton"
+            android:layout_width="148dp"
+            android:layout_height="36dp"
+            android:background="@drawable/button__2_"
+            android:contentDescription="@string/clear_history_description"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
     <!-- Результаты поиска -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/searchResultsRecyclerView"

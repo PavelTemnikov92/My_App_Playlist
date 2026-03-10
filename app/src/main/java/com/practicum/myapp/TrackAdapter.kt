@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-class TrackAdapter : ListAdapter<Track, TrackAdapter.TrackViewHolder>(TrackDiffCallback()) {
+class TrackAdapter(
+    private val onItemClick: ((Track) -> Unit)? = null
+) : ListAdapter<Track, TrackAdapter.TrackViewHolder>(TrackDiffCallback()) {
 
     inner class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val trackNameTextView: TextView = itemView.findViewById(R.id.trackNameTextView)
@@ -31,6 +33,11 @@ class TrackAdapter : ListAdapter<Track, TrackAdapter.TrackViewHolder>(TrackDiffC
                 .error(R.drawable.rounded_corner_background)
                 .fitCenter()
                 .into(artworkImageView)
+            
+            // Обработка клика
+            itemView.setOnClickListener {
+                onItemClick?.invoke(item)
+            }
         }
     }
 

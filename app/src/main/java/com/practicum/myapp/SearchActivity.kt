@@ -1,6 +1,7 @@
 package com.practicum.myapp
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
@@ -13,6 +14,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,10 +30,19 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var retryButton: Button
     private lateinit var trackAdapter: TrackAdapter
+    private lateinit var historyAdapter: TrackAdapter
 
     // Заглушки
     private lateinit var emptyResultLayout: LinearLayout
     private lateinit var errorLayout: LinearLayout
+
+    // История
+    private lateinit var historySection: LinearLayout
+    private lateinit var historyRecyclerView: RecyclerView
+    private lateinit var clearHistoryButton: ImageButton
+
+    // Подсказка
+    private lateinit var searchHint: TextView
 
     private var searchText: String = ""
     private var isSearching = false
@@ -45,6 +56,17 @@ class SearchActivity : AppCompatActivity() {
         setupRecyclerView()
         setupClickListeners()
         setupKeyboardListener()
+
+        // Запрашиваем фокус для поля поиска и показываем клавиатуру
+        searchEditText.requestFocus()
+        showKeyboard()
+    }
+
+    private fun showKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        searchEditText.postDelayed({
+            imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT)
+        }, 100)
     }
 
     private fun initViews() {
@@ -55,12 +77,35 @@ class SearchActivity : AppCompatActivity() {
         retryButton = findViewById(R.id.retryButton)
         emptyResultLayout = findViewById(R.id.emptyResultLayout)
         errorLayout = findViewById(R.id.errorLayout)
+
+        // История
+        historySection = findViewById(R.id.historySection)
+        historyRecyclerView = findViewById(R.id.historyRecyclerView)
+        clearHistoryButton = findViewById(R.id.clearHistoryButton)
+
+        // Подсказка
+        searchHint = findViewById(R.id.searchHint)
     }
 
     private fun setupRecyclerView() {
-        trackAdapter = TrackAdapter()
+        // Адаптер для результатов поиска
+        trackAdapter = TrackAdapter { track ->
+            // Добавление трека в историю при клике
+            HistoryManager.addTrack(track)
+            // Скрыть историю после добавления трека
+            hideHistorySection()
+        }
         searchResultsRecyclerView.adapter = trackAdapter
         searchResultsRecyclerView.layoutManager = LinearLayoutManager(this)
+        
+        // Адаптер для истории
+        historyAdapter = TrackAdapter { track ->
+            // При клике на трек в истории - добавляем его снова (перемещаем вверх)
+            HistoryManager.addTrack(track)
+            loadHistory()
+        }
+        historyRecyclerView.adapter = historyAdapter
+        historyRecyclerView.layoutManager = LinearLayoutManager(this)
     }
 
     private fun setupClickListeners() {
@@ -81,26 +126,51 @@ class SearchActivity : AppCompatActivity() {
         }
 
         // TextWatcher для отслеживания текста
-        val searchWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                clearSearchButton.visibility = if (s.isNullOrEmpty()) {
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                clearSearchButton.visibility = if (p0.isNullOrEmpty()) {
                     View.GONE
                 } else {
                     View.VISIBLE
                 }
-                searchText = s?.toString() ?: ""
+                searchText = p0?.toString() ?: ""
+                
+                // Если поле в фокусе, обновляем видимость подсказки и истории
+                if (searchEditText.hasFocus()) {
+                    if (p0.isNullOrEmpty()) {
+                        searchHint.visibility = View.VISIBLE
+                        loadHistory()
+                    } else {
+                        searchHint.visibility = View.GONE
+                        hideHistorySection()
+                    }
+                }
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(p0: Editable?) {
+            }
+        })
+
+        // Отслеживание фокуса поля поиска
+        searchEditText.setOnFocusChangeListener { _, hasFocus ->
+            val isTextEmpty = searchEditText.text.isNullOrEmpty()
+            
+            // Подсказка и история показываются, когда поле в фокусе и текст пустой
+            if (hasFocus && isTextEmpty) {
+                searchHint.visibility = View.VISIBLE
+                loadHistory()
+            } else {
+                searchHint.visibility = View.GONE
+                hideHistorySection()
+            }
         }
-        searchEditText.addTextChangedListener(searchWatcher)
 
         // Кнопка очистки
         clearSearchButton.setOnClickListener {
             searchEditText.setText("")
-            searchEditText.clearFocus()
             // Скрыть клавиатуру
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(searchEditText.windowToken, 0)
@@ -112,6 +182,15 @@ class SearchActivity : AppCompatActivity() {
             showRecyclerView()
             // Сбросить последний поисковый запрос
             lastSearchQuery = ""
+            // Показать историю, так как поле пустое и в фокусе
+            val isTextEmpty = searchEditText.text.isNullOrEmpty()
+            if (searchEditText.hasFocus() && isTextEmpty) {
+                searchHint.visibility = View.VISIBLE
+                loadHistory()
+            } else {
+                searchHint.visibility = View.GONE
+                hideHistorySection()
+            }
         }
 
         // Кнопка повторной попытки
@@ -124,6 +203,12 @@ class SearchActivity : AppCompatActivity() {
         // Кнопка назад
         backButton.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
+        }
+
+        // Кнопка очистки истории
+        clearHistoryButton.setOnClickListener {
+            HistoryManager.clearHistory()
+            hideHistorySection()
         }
 
         updateClearButtonVisibility()
@@ -196,6 +281,40 @@ class SearchActivity : AppCompatActivity() {
         searchResultsRecyclerView.visibility = View.GONE
         emptyResultLayout.visibility = View.GONE
         errorLayout.visibility = View.VISIBLE
+    }
+    
+    private fun loadHistory() {
+        val history = HistoryManager.getHistory()
+
+        if (history.isEmpty()) {
+            historySection.visibility = View.GONE
+        } else {
+            historySection.visibility = View.VISIBLE
+            historyAdapter.updateTracks(history.map { it.toTrack() })
+        }
+    }
+
+    private fun hideHistorySection() {
+        historySection.visibility = View.GONE
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Обновляем видимость подсказки и истории
+        val hasFocus = searchEditText.hasFocus()
+        val isTextEmpty = searchEditText.text.isNullOrEmpty()
+        
+        searchHint.visibility = if (hasFocus && isTextEmpty) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+        
+        if (hasFocus && isTextEmpty) {
+            loadHistory()
+        } else {
+            hideHistorySection()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
