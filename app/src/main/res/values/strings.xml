@@ -50,4 +50,6 @@
     <string name="add_photo_description">Добавить фото</string>
     <string name="label_name">Название</string>
     <string name="label_description">Описание</string>
+    <string name="label_playlist_name">Название плейлиста</string>
+    <string name="label_playlist_description">Описание плейлиста</string>
 </resources>

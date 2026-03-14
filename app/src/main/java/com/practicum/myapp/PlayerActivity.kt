@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
@@ -34,6 +35,16 @@ class PlayerActivity : AppCompatActivity() {
     private var isPlaying = false
     private var isLiked = false
     private var currentTrack: Track? = null
+
+    // Регистрируем контракт для получения результата от CreatePlaylistActivity
+    private val createPlaylistLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val playlistName = result.data?.getStringExtra("playlist_name") ?: ""
+            showPlaylistCreatedSnackbar(playlistName)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -140,7 +151,7 @@ class PlayerActivity : AppCompatActivity() {
         buttonAddTrack.setOnClickListener {
             // Открытие экрана создания плейлиста
             val intent = Intent(this@PlayerActivity, CreatePlaylistActivity::class.java)
-            startActivityForResult(intent, CREATE_PLAYLIST_REQUEST)
+            createPlaylistLauncher.launch(intent)
         }
 
         buttonPlayPause.setOnClickListener {
@@ -152,44 +163,33 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        
-        if (requestCode == CREATE_PLAYLIST_REQUEST && resultCode == RESULT_OK) {
-            val playlistName = data?.getStringExtra("playlist_name") ?: ""
-            
-            // Показываем уведомление о создании плейлиста
-            val snackbar = Snackbar.make(
-                findViewById(android.R.id.content),
-                "Плейлист «$playlistName» создан",
-                Snackbar.LENGTH_SHORT
-            )
-            
-            // Настраиваем внешний вид уведомления
-            snackbar.setBackgroundTint(Color.BLACK)
-            snackbar.setTextColor(Color.WHITE)
-            
-            // Центрируем уведомление внизу экрана
-            val snackbarView = snackbar.view
-            val params = snackbarView.layoutParams as FrameLayout.LayoutParams
-            params.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            params.width = FrameLayout.LayoutParams.MATCH_PARENT
-            snackbarView.layoutParams = params
-            
-            // Центрируем текст в уведомлении
-            val snackbarText = snackbarView.findViewById<TextView>(
-                com.google.android.material.R.id.snackbar_text
-            )
-            snackbarText.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
-            snackbarText.gravity = Gravity.CENTER
-            snackbarText.setPadding(0, snackbarText.paddingTop, 0, snackbarText.paddingBottom)
-            
-            snackbar.show()
-        }
-    }
+    private fun showPlaylistCreatedSnackbar(playlistName: String) {
+        val snackbar = Snackbar.make(
+            findViewById(android.R.id.content),
+            "Плейлист «$playlistName» создан",
+            Snackbar.LENGTH_SHORT
+        )
 
-    companion object {
-        private const val CREATE_PLAYLIST_REQUEST = 1001
+        // Настраиваем внешний вид уведомления
+        snackbar.setBackgroundTint(Color.BLACK)
+        snackbar.setTextColor(Color.WHITE)
+
+        // Центрируем уведомление внизу экрана
+        val snackbarView = snackbar.view
+        val params = snackbarView.layoutParams as FrameLayout.LayoutParams
+        params.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+        params.width = FrameLayout.LayoutParams.MATCH_PARENT
+        snackbarView.layoutParams = params
+
+        // Центрируем текст в уведомлении
+        val snackbarText = snackbarView.findViewById<TextView>(
+            com.google.android.material.R.id.snackbar_text
+        )
+        snackbarText.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+        snackbarText.gravity = Gravity.CENTER
+        snackbarText.setPadding(0, snackbarText.paddingTop, 0, snackbarText.paddingBottom)
+
+        snackbar.show()
     }
 
     private fun togglePlayPause() {
