@@ -22,4 +22,6 @@
     <color name="search_bar_icon_and_hint_color">#AEAFB4</color>
     <color name="clear_button_icon_tint">@color/white</color>
     <color name="clear_button_text_color">@color/white</color>
+    <color name="player_progress_background">#E0E0E0</color>
+    <color name="player_progress_primary">@color/blue</color>
 </resources>

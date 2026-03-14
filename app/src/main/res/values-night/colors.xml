@@ -18,4 +18,6 @@
     <color name="search_bar_icon_and_hint_color">#000000</color>
     <color name="clear_button_icon_tint">@color/black</color>
     <color name="clear_button_text_color">@color/black</color>
+    <color name="player_progress_background">#424242</color>
+    <color name="player_progress_primary">@color/blue</color>
 </resources>

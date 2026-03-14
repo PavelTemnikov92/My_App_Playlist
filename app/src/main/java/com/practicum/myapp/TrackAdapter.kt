@@ -1,5 +1,6 @@
 package com.practicum.myapp
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,10 +34,14 @@ class TrackAdapter(
                 .error(R.drawable.rounded_corner_background)
                 .fitCenter()
                 .into(artworkImageView)
-            
+
             // Обработка клика
             itemView.setOnClickListener {
                 onItemClick?.invoke(item)
+                // Открытие PlayerActivity с передачей данных трека
+                val intent = Intent(itemView.context, PlayerActivity::class.java)
+                intent.putExtra("track", item)
+                itemView.context.startActivity(intent)
             }
         }
     }

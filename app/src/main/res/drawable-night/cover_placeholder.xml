@@ -1,0 +1,19 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="280dp"
+    android:height="280dp"
+    android:viewportWidth="280"
+    android:viewportHeight="280">
+    <!-- Фон -->
+    <path
+        android:width="280dp"
+        android:height="280dp"
+        android:pathData="M0,0h280v280h-280z"
+        android:fillColor="#2C2D36"/>
+    <!-- Музыкальная нота -->
+    <path
+        android:pathData="M140,80c-33.1,0 -60,26.9 -60,60s26.9,60 60,60s60,-26.9 60,-60S173.1,80 140,80zM140,180c-22.1,0 -40,-17.9 -40,-40s17.9,-40 40,-40s40,17.9 40,40S162.1,180 140,180z"
+        android:fillColor="#6D6D75"/>
+    <path
+        android:pathData="M150,140v-50h-20v70c0,5.5 4.5,10 10,10s10,-4.5 10,-10v-20z"
+        android:fillColor="#6D6D75"/>
+</vector>

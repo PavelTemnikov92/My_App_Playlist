@@ -46,6 +46,17 @@
             android:name=".HistoryActivity"
             android:exported="false"
             tools:ignore="Instantiatable" />
+
+        <activity
+            android:name=".PlayerActivity"
+            android:exported="false"
+            tools:ignore="Instantiatable" />
+
+        <activity
+            android:name=".CreatePlaylistActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="Instantiatable" />
     </application>
 
 </manifest>
