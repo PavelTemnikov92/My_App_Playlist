@@ -170,15 +170,30 @@ class PlayerActivity : AppCompatActivity() {
             Snackbar.LENGTH_SHORT
         )
 
+        // Проверяем текущую тему
+        val isNightMode = resources.configuration.uiMode and
+            android.content.res.Configuration.UI_MODE_NIGHT_MASK ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+
         // Настраиваем внешний вид уведомления
-        snackbar.setBackgroundTint(Color.BLACK)
-        snackbar.setTextColor(Color.WHITE)
+        if (isNightMode) {
+            // Тёмная тема: белый фон, чёрный текст
+            snackbar.setBackgroundTint(Color.WHITE)
+            snackbar.setTextColor(Color.BLACK)
+        } else {
+            // Светлая тема: чёрный фон, белый текст
+            snackbar.setBackgroundTint(Color.BLACK)
+            snackbar.setTextColor(Color.WHITE)
+        }
 
         // Центрируем уведомление внизу экрана
         val snackbarView = snackbar.view
         val params = snackbarView.layoutParams as FrameLayout.LayoutParams
         params.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         params.width = FrameLayout.LayoutParams.MATCH_PARENT
+        val marginPx = (16 * resources.displayMetrics.density).toInt()
+        params.marginStart = marginPx
+        params.marginEnd = marginPx
         snackbarView.layoutParams = params
 
         // Центрируем текст в уведомлении

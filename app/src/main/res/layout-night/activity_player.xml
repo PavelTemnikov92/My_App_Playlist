@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
         android:paddingTop="16dp"
+        android:paddingStart="24dp"
         android:paddingEnd="24dp"
         android:paddingBottom="16dp">
 
@@ -19,7 +20,6 @@
             android:id="@+id/backButton"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginStart="24dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/back_button_description"
             android:src="@drawable/back"
