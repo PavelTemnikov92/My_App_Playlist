@@ -3,5 +3,5 @@
     <!-- Цвет рамки когда поле в фокусе -->
     <item android:color="@color/blue" android:state_focused="true" />
     <!-- Цвет рамки когда поле не в фокусе (неактивное) -->
-    <item android:color="#AEAFB4" />
+    <item android:color="@color/text_input_box_stroke" />
 </selector>

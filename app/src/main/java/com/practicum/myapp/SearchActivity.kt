@@ -137,7 +137,7 @@ class SearchActivity : AppCompatActivity() {
                     View.VISIBLE
                 }
                 searchText = p0?.toString() ?: ""
-                
+
                 // Если поле в фокусе, обновляем видимость подсказки и истории
                 if (searchEditText.hasFocus()) {
                     if (p0.isNullOrEmpty()) {
@@ -238,6 +238,8 @@ class SearchActivity : AppCompatActivity() {
         isSearching = true
         lastSearchQuery = query
 
+        // Скрываем историю при выполнении поиска
+        hideHistorySection()
         showRecyclerView()
 
         RetrofitClient.itunesApi.search(query).enqueue(object : Callback<ItunesResponse> {
@@ -286,8 +288,13 @@ class SearchActivity : AppCompatActivity() {
     private fun loadHistory() {
         val history = HistoryManager.getHistory()
 
+        // Скрываем результаты поиска при показе истории
+        hideSearchResults()
+
         if (history.isEmpty()) {
             historySection.visibility = View.GONE
+            // Если истории нет, показываем только подсказку
+            searchHint.visibility = View.VISIBLE
         } else {
             historySection.visibility = View.VISIBLE
             historyAdapter.updateTracks(history.map { it.toTrack() })
@@ -296,6 +303,12 @@ class SearchActivity : AppCompatActivity() {
 
     private fun hideHistorySection() {
         historySection.visibility = View.GONE
+    }
+
+    private fun hideSearchResults() {
+        searchResultsRecyclerView.visibility = View.GONE
+        emptyResultLayout.visibility = View.GONE
+        errorLayout.visibility = View.GONE
     }
 
     override fun onResume() {

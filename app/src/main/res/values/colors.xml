@@ -24,4 +24,5 @@
     <color name="clear_button_text_color">@color/white</color>
     <color name="player_progress_background">#E0E0E0</color>
     <color name="player_progress_primary">@color/blue</color>
+    <color name="text_input_box_stroke">#AEAFB4</color>
 </resources>
