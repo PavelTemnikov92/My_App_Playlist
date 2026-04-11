@@ -1,6 +1,7 @@
 package com.practicum.myapp
 
 import android.content.Intent
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,10 @@ import com.bumptech.glide.Glide
 class TrackAdapter(
     private val onItemClick: ((Track) -> Unit)? = null
 ) : ListAdapter<Track, TrackAdapter.TrackViewHolder>(TrackDiffCallback()) {
+
+    // Для debounce обработки кликов
+    private var lastClickTime: Long = 0
+    private val CLICK_DEBOUNCE_DELAY: Long = 1000L // 1 секунда
 
     inner class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val trackNameTextView: TextView = itemView.findViewById(R.id.trackNameTextView)
@@ -35,8 +40,14 @@ class TrackAdapter(
                 .fitCenter()
                 .into(artworkImageView)
 
-            // Обработка клика
+            // Обработка клика с debounce
             itemView.setOnClickListener {
+                val currentTime = SystemClock.elapsedRealtime()
+                if (currentTime - lastClickTime < CLICK_DEBOUNCE_DELAY) {
+                    return@setOnClickListener
+                }
+                lastClickTime = currentTime
+
                 onItemClick?.invoke(item)
                 // Открытие PlayerActivity с передачей данных трека
                 val intent = Intent(itemView.context, PlayerActivity::class.java)
