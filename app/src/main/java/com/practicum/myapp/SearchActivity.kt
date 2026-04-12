@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -14,6 +16,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -48,6 +51,14 @@ class SearchActivity : AppCompatActivity() {
     private var isSearching = false
     private var lastSearchQuery: String = ""
 
+    // Debounce для поискового запроса
+    private val searchHandler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
+    private val SEARCH_DEBOUNCE_DELAY: Long = 2000L // 2 секунды
+
+    // ProgressBar
+    private lateinit var searchProgressBar: ProgressBar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
@@ -77,6 +88,7 @@ class SearchActivity : AppCompatActivity() {
         retryButton = findViewById(R.id.retryButton)
         emptyResultLayout = findViewById(R.id.emptyResultLayout)
         errorLayout = findViewById(R.id.errorLayout)
+        searchProgressBar = findViewById(R.id.searchProgressBar)
 
         // История
         historySection = findViewById(R.id.historySection)
@@ -112,6 +124,10 @@ class SearchActivity : AppCompatActivity() {
         // Обработка нажатия на кнопку Done на клавиатуре
         searchEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
+                // Отменяем debounce запрос, если он был
+                searchRunnable?.let {
+                    searchHandler.removeCallbacks(it)
+                }
                 val query = searchEditText.text.toString()
                 if (query.isNotBlank()) {
                     performSearch(query)
@@ -125,7 +141,7 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-        // TextWatcher для отслеживания текста
+        // TextWatcher для отслеживания текста с debounce
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
@@ -148,6 +164,9 @@ class SearchActivity : AppCompatActivity() {
                         hideHistorySection()
                     }
                 }
+
+                // Debounce для поискового запроса
+                performSearchWithDebounce(p0?.toString() ?: "")
             }
 
             override fun afterTextChanged(p0: Editable?) {
@@ -170,6 +189,10 @@ class SearchActivity : AppCompatActivity() {
 
         // Кнопка очистки
         clearSearchButton.setOnClickListener {
+            // Отменяем debounce запрос, если он был
+            searchRunnable?.let {
+                searchHandler.removeCallbacks(it)
+            }
             searchEditText.setText("")
             // Скрыть клавиатуру
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -195,6 +218,10 @@ class SearchActivity : AppCompatActivity() {
 
         // Кнопка повторной попытки
         retryButton.setOnClickListener {
+            // Отменяем debounce запрос, если он был
+            searchRunnable?.let {
+                searchHandler.removeCallbacks(it)
+            }
             if (lastSearchQuery.isNotBlank()) {
                 performSearch(lastSearchQuery)
             }
@@ -227,6 +254,44 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    private fun performSearchWithDebounce(query: String) {
+        // Отменяем предыдущий запрос, если он был
+        searchRunnable?.let {
+            searchHandler.removeCallbacks(it)
+        }
+
+        // Если запрос пустой, скрываем результаты и показываем историю
+        if (query.isBlank()) {
+            trackAdapter.updateTracks(emptyList())
+            showRecyclerView()
+            lastSearchQuery = ""
+            // Показать историю, так как поле пустое
+            val isTextEmpty = searchEditText.text.isNullOrEmpty()
+            if (searchEditText.hasFocus() && isTextEmpty) {
+                searchHint.visibility = View.VISIBLE
+                loadHistory()
+            } else {
+                searchHint.visibility = View.GONE
+                hideHistorySection()
+            }
+            return
+        }
+
+        // Создаём новый отложенный запрос
+        searchRunnable = Runnable {
+            performSearch(query)
+        }
+        searchHandler.postDelayed(searchRunnable!!, SEARCH_DEBOUNCE_DELAY)
+    }
+
+    private fun showProgressBar() {
+        searchProgressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBar() {
+        searchProgressBar.visibility = View.GONE
+    }
+
     private fun performSearch(query: String) {
         if (query.isBlank()) {
             trackAdapter.updateTracks(emptyList())
@@ -238,6 +303,9 @@ class SearchActivity : AppCompatActivity() {
         isSearching = true
         lastSearchQuery = query
 
+        // Показываем ProgressBar
+        showProgressBar()
+
         // Скрываем историю при выполнении поиска
         hideHistorySection()
         showRecyclerView()
@@ -245,6 +313,8 @@ class SearchActivity : AppCompatActivity() {
         RetrofitClient.itunesApi.search(query).enqueue(object : Callback<ItunesResponse> {
             override fun onResponse(call: Call<ItunesResponse>, response: Response<ItunesResponse>) {
                 isSearching = false
+                // Скрываем ProgressBar
+                hideProgressBar()
 
                 if (response.isSuccessful && response.body() != null) {
                     val results = response.body()?.results ?: emptyList()
@@ -262,6 +332,8 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<ItunesResponse>, t: Throwable) {
                 isSearching = false
+                // Скрываем ProgressBar
+                hideProgressBar()
                 showError()
             }
         })
@@ -346,6 +418,10 @@ class SearchActivity : AppCompatActivity() {
         super.onDestroy()
         val rootView = findViewById<View>(android.R.id.content)
         rootView.viewTreeObserver.removeOnGlobalLayoutListener(keyboardLayoutListener)
+        // Очищаем debounce callback
+        searchRunnable?.let {
+            searchHandler.removeCallbacks(it)
+        }
     }
 
     private val keyboardLayoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {

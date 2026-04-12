@@ -2,6 +2,7 @@ package com.practicum.myapp
 
 import android.content.Intent
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -10,10 +11,10 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import java.io.IOException
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -36,15 +37,26 @@ class PlayerActivity : AppCompatActivity() {
     private var isLiked = false
     private var currentTrack: Track? = null
 
-    // Регистрируем контракт для получения результата от CreatePlaylistActivity
-    private val createPlaylistLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val playlistName = result.data?.getStringExtra("playlist_name") ?: ""
-            showPlaylistCreatedSnackbar(playlistName)
+    // MediaPlayer
+    private var mediaPlayer: MediaPlayer? = null
+    private var isMediaPlayerPrepared: Boolean = false
+    private var playbackPosition = 0 // позиция в мс
+    private var shouldStartOnPrepared = false // флаг: начать воспроизведение после подготовки
+
+    // Runnable для обновления прогресса
+    private val progressRunnable = object : Runnable {
+        override fun run() {
+            mediaPlayer?.let { mp ->
+                if (isPlaying && isMediaPlayerPrepared) {
+                    val currentPosition = mp.currentPosition
+                    textPlayTime.text = formatTimeMs(currentPosition)
+                    handler.postDelayed(this, PROGRESS_UPDATE_INTERVAL)
+                }
+            }
         }
     }
+
+    private val PROGRESS_UPDATE_INTERVAL = 200L // обновление каждые 200мс
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +64,7 @@ class PlayerActivity : AppCompatActivity() {
 
         initViews()
         setupListeners()
+        initMediaPlayer()
     }
 
     private fun initViews() {
@@ -79,6 +92,52 @@ class PlayerActivity : AppCompatActivity() {
 
         // Отображение данных трека
         displayTrackInfo()
+
+        // Начальное состояние кнопки — Play
+        updatePlayPauseIcon(isPlaying = false)
+    }
+
+    private fun initMediaPlayer() {
+        val previewUrl = currentTrack?.previewUrl
+        if (previewUrl.isNullOrBlank()) {
+            return
+        }
+
+        val mp = MediaPlayer()
+        mediaPlayer = mp
+
+        try {
+            mp.setDataSource(previewUrl)
+            mp.setOnPreparedListener {
+                this@PlayerActivity.isMediaPlayerPrepared = true
+                if (this@PlayerActivity.shouldStartOnPrepared) {
+                    this@PlayerActivity.shouldStartOnPrepared = false
+                    this@PlayerActivity.performStart()
+                } else if (this@PlayerActivity.playbackPosition > 0) {
+                    mp.seekTo(this@PlayerActivity.playbackPosition)
+                }
+            }
+            mp.setOnCompletionListener {
+                this@PlayerActivity.isPlaying = false
+                this@PlayerActivity.isMediaPlayerPrepared = false
+                this@PlayerActivity.playbackPosition = 0
+                this@PlayerActivity.shouldStartOnPrepared = false
+                this@PlayerActivity.textPlayTime.text = formatTimeMs(0)
+                this@PlayerActivity.updatePlayPauseIcon(isPlaying = false)
+            }
+            mp.setOnErrorListener { _, _, _ ->
+                this@PlayerActivity.isPlaying = false
+                this@PlayerActivity.isMediaPlayerPrepared = false
+                this@PlayerActivity.playbackPosition = 0
+                this@PlayerActivity.shouldStartOnPrepared = false
+                this@PlayerActivity.textPlayTime.text = formatTimeMs(0)
+                this@PlayerActivity.updatePlayPauseIcon(isPlaying = false)
+                true
+            }
+            mp.prepareAsync()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 
     private fun displayTrackInfo() {
@@ -87,12 +146,13 @@ class PlayerActivity : AppCompatActivity() {
         textTrackName.text = track?.trackName ?: getString(R.string.track_name_placeholder)
         textArtistName.text = track?.artistName ?: getString(R.string.artist_name_placeholder)
 
-        // Длительность трека
+        // Длительность трека (статичное значение, не меняется)
         val trackMillis = track?.trackTimeMillis ?: 0L
-        val trackSeconds = (trackMillis / 1000).toInt()
-        val durationText = formatTime(trackSeconds)
-        textPlayTime.text = durationText
+        val durationText = formatTimeMs(trackMillis.toInt())
         textDurationValue.text = durationText
+
+        // Начальное время прогресса
+        textPlayTime.text = formatTimeMs(0)
 
         // Название альбома
         track?.collectionName?.let { collectionName ->
@@ -145,17 +205,20 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         buttonBack.setOnClickListener {
+            stopPlayback()
             finish()
         }
 
         buttonAddTrack.setOnClickListener {
-            // Открытие экрана создания плейлиста
-            val intent = Intent(this@PlayerActivity, CreatePlaylistActivity::class.java)
-            createPlaylistLauncher.launch(intent)
+            // TODO: CreatePlaylistActivity не найден в проекте
         }
 
         buttonPlayPause.setOnClickListener {
-            togglePlayPause()
+            if (isPlaying) {
+                pausePlayback()
+            } else {
+                startPlayback()
+            }
         }
 
         buttonLike.setOnClickListener {
@@ -163,68 +226,91 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun showPlaylistCreatedSnackbar(playlistName: String) {
-        val snackbar = Snackbar.make(
-            findViewById(android.R.id.content),
-            "Плейлист «$playlistName» создан",
-            Snackbar.LENGTH_SHORT
-        )
+    private fun startPlayback() {
+        val previewUrl = currentTrack?.previewUrl
+        if (previewUrl.isNullOrBlank()) {
+            return
+        }
 
-        // Проверяем текущую тему
+        // Если MediaPlayer уже готов — запускаем
+        if (mediaPlayer != null && isMediaPlayerPrepared) {
+            performStart()
+            return
+        }
+
+        // Иначе — пересоздаём и запускаем после подготовки
+        playbackPosition = 0
+        mediaPlayer?.release()
+        mediaPlayer = null
+        isMediaPlayerPrepared = false
+        shouldStartOnPrepared = true
+        initMediaPlayer()
+    }
+
+    private fun performStart() {
+        mediaPlayer?.let { mp ->
+            if (playbackPosition > 0 && playbackPosition < mp.duration) {
+                mp.seekTo(playbackPosition)
+            } else {
+                playbackPosition = 0
+                mp.seekTo(0)
+            }
+            mp.start()
+            isPlaying = true
+            updatePlayPauseIcon(isPlaying = true)
+            handler.post(progressRunnable)
+        }
+    }
+
+    private fun pausePlayback() {
+        mediaPlayer?.let { mp ->
+            if (mp.isPlaying) {
+                playbackPosition = mp.currentPosition
+                mp.pause()
+                isPlaying = false
+                updatePlayPauseIcon(isPlaying = false)
+                handler.removeCallbacks(progressRunnable)
+            }
+        }
+    }
+
+    private fun stopPlayback() {
+        handler.removeCallbacks(progressRunnable)
+        mediaPlayer?.let { mp ->
+            try {
+                if (mp.isPlaying) {
+                    mp.stop()
+                }
+                mp.reset()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            mp.release()
+        }
+        mediaPlayer = null
+        isPlaying = false
+        isMediaPlayerPrepared = false
+        playbackPosition = 0
+        shouldStartOnPrepared = false
+    }
+
+    private fun updatePlayPauseIcon(isPlaying: Boolean) {
         val isNightMode = resources.configuration.uiMode and
             android.content.res.Configuration.UI_MODE_NIGHT_MASK ==
             android.content.res.Configuration.UI_MODE_NIGHT_YES
-
-        // Настраиваем внешний вид уведомления
-        if (isNightMode) {
-            // Тёмная тема: белый фон, чёрный текст
-            snackbar.setBackgroundTint(Color.WHITE)
-            snackbar.setTextColor(Color.BLACK)
-        } else {
-            // Светлая тема: чёрный фон, белый текст
-            snackbar.setBackgroundTint(Color.BLACK)
-            snackbar.setTextColor(Color.WHITE)
-        }
-
-        // Центрируем уведомление внизу экрана
-        val snackbarView = snackbar.view
-        val params = snackbarView.layoutParams as FrameLayout.LayoutParams
-        params.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-        params.width = FrameLayout.LayoutParams.MATCH_PARENT
-        val marginPx = (16 * resources.displayMetrics.density).toInt()
-        params.marginStart = marginPx
-        params.marginEnd = marginPx
-        snackbarView.layoutParams = params
-
-        // Центрируем текст в уведомлении
-        val snackbarText = snackbarView.findViewById<TextView>(
-            com.google.android.material.R.id.snackbar_text
+        buttonPlayPause.setImageResource(
+            if (isPlaying) {
+                if (isNightMode) R.drawable.ic_pause_n else R.drawable.ic_pause
+            } else {
+                if (isNightMode) R.drawable.ic_play_n else R.drawable.ic_play
+            }
         )
-        snackbarText.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
-        snackbarText.gravity = Gravity.CENTER
-        snackbarText.setPadding(0, snackbarText.paddingTop, 0, snackbarText.paddingBottom)
-
-        snackbar.show()
-    }
-
-    private fun togglePlayPause() {
-        isPlaying = !isPlaying
-        // Проверяем текущую тему
-        val isNightMode = resources.configuration.uiMode and 
-            android.content.res.Configuration.UI_MODE_NIGHT_MASK == 
-            android.content.res.Configuration.UI_MODE_NIGHT_YES
-        if (isPlaying) {
-            buttonPlayPause.setImageResource(if (isNightMode) R.drawable.ic_pause_n else R.drawable.ic_pause)
-        } else {
-            buttonPlayPause.setImageResource(if (isNightMode) R.drawable.ic_play_n else R.drawable.ic_play)
-        }
     }
 
     private fun toggleLike() {
         isLiked = !isLiked
-        // Проверяем текущую тему
-        val isNightMode = resources.configuration.uiMode and 
-            android.content.res.Configuration.UI_MODE_NIGHT_MASK == 
+        val isNightMode = resources.configuration.uiMode and
+            android.content.res.Configuration.UI_MODE_NIGHT_MASK ==
             android.content.res.Configuration.UI_MODE_NIGHT_YES
         if (isLiked) {
             buttonLike.setImageResource(if (isNightMode) R.drawable.ic_like_r_n else R.drawable.ic_like_r)
@@ -237,5 +323,32 @@ class PlayerActivity : AppCompatActivity() {
         val minutes = seconds / 60
         val remainingSeconds = seconds % 60
         return String.format("%d:%02d", minutes, remainingSeconds)
+    }
+
+    private fun formatTimeMs(milliseconds: Int): String {
+        val totalSeconds = milliseconds / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d", minutes, seconds)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // При уходе в фон — останавливаем воспроизведение
+        if (isPlaying) {
+            pausePlayback()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopPlayback()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        stopPlayback()
+        @Suppress("DEPRECATION")
+        super.onBackPressed()
     }
 }

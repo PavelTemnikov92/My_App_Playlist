@@ -31,7 +31,10 @@ data class Track(
     val primaryGenreName: String? = null,
 
     @SerializedName("country")
-    val country: String? = null
+    val country: String? = null,
+
+    @SerializedName("previewUrl")
+    val previewUrl: String? = null
 ) : Parcelable {
     // Вспомогательное свойство для отображения времени в формате mm:ss
     val trackTime: String

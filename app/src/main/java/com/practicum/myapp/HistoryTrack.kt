@@ -28,7 +28,10 @@ data class HistoryTrack(
     val primaryGenreName: String? = null,
 
     @SerializedName("country")
-    val country: String? = null
+    val country: String? = null,
+
+    @SerializedName("previewUrl")
+    val previewUrl: String? = null
 ) {
     // Вспомогательное свойство для отображения времени в формате mm:ss
     val trackTime: String
@@ -55,7 +58,8 @@ data class HistoryTrack(
             collectionName = collectionName,
             releaseDate = releaseDate,
             primaryGenreName = primaryGenreName,
-            country = country
+            country = country,
+            previewUrl = previewUrl
         )
     }
 
@@ -70,7 +74,8 @@ data class HistoryTrack(
                 collectionName = track.collectionName,
                 releaseDate = track.releaseDate,
                 primaryGenreName = track.primaryGenreName,
-                country = track.country
+                country = track.country,
+                previewUrl = track.previewUrl
             )
         }
     }
