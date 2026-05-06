@@ -18,7 +18,7 @@ class App : Application() {
         HistoryManager.init(this)
 
         // Инициализация InteractorCreator
-        com.practicum.myapp.presentation.InteractorCreator.init(this)
+        com.practicum.myapp.presentation.interactor.Creator.init(this)
 
         // Получаем SharedPreferences
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
