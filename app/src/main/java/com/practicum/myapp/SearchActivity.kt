@@ -17,6 +17,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -57,7 +58,7 @@ class SearchActivity : AppCompatActivity() {
     private val SEARCH_DEBOUNCE_DELAY: Long = 2000L // 2 секунды
 
     // ProgressBar
-    private lateinit var searchProgressBar: ProgressBar
+    private lateinit var progressBar: com.google.android.material.progressindicator.CircularProgressIndicator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,7 +89,7 @@ class SearchActivity : AppCompatActivity() {
         retryButton = findViewById(R.id.retryButton)
         emptyResultLayout = findViewById(R.id.emptyResultLayout)
         errorLayout = findViewById(R.id.errorLayout)
-        searchProgressBar = findViewById(R.id.searchProgressBar)
+        progressBar = findViewById(R.id.progressBar)
 
         // История
         historySection = findViewById(R.id.historySection)
@@ -285,11 +286,11 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showProgressBar() {
-        searchProgressBar.visibility = View.VISIBLE
+        progressBar.visibility = View.VISIBLE
     }
 
     private fun hideProgressBar() {
-        searchProgressBar.visibility = View.GONE
+        progressBar.visibility = View.GONE
     }
 
     private fun performSearch(query: String) {
