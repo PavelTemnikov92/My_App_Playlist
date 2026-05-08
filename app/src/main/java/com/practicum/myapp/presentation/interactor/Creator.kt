@@ -25,7 +25,7 @@ object Creator {
     fun init(app: Application) {
         // Реализации репозиториев находятся в слое Data
         trackRepository = TrackRepositoryImpl()
-        historyRepository = HistoryRepositoryImpl(app)
+        historyRepository = HistoryRepositoryImpl(app.applicationContext)
     }
 
     fun getSearchTracksInteractor(): SearchTracksInteractor {

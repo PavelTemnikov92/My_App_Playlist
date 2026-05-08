@@ -1,4 +1,4 @@
-package com.practicum.myapp
+package com.practicum.myapp.presentation.ui
 
 import android.content.Intent
 import android.os.SystemClock
@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.practicum.myapp.R
+import com.practicum.myapp.domain.model.Track
 
 class TrackAdapter(
     private val onItemClick: ((Track) -> Unit)? = null

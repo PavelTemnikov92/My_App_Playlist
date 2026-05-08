@@ -8,7 +8,7 @@ import com.practicum.myapp.domain.repositories.HistoryRepository
 class ClearHistoryInteractor(
     private val historyRepository: HistoryRepository
 ) {
-    suspend operator fun invoke() {
+    operator fun invoke() {
         historyRepository.clearHistory()
     }
 }

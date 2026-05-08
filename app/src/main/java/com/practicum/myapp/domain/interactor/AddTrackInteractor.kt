@@ -1,6 +1,6 @@
 package com.practicum.myapp.domain.interactor
 
-import com.practicum.myapp.Track
+import com.practicum.myapp.domain.model.Track
 import com.practicum.myapp.domain.repositories.HistoryRepository
 
 /**
@@ -9,7 +9,7 @@ import com.practicum.myapp.domain.repositories.HistoryRepository
 class AddTrackInteractor(
     private val historyRepository: HistoryRepository
 ) {
-    suspend operator fun invoke(track: Track) {
+    operator fun invoke(track: Track) {
         historyRepository.addTrack(track)
     }
 }

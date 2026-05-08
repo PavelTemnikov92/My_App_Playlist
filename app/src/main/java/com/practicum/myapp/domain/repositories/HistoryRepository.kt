@@ -1,7 +1,7 @@
 package com.practicum.myapp.domain.repositories
 
-import com.practicum.myapp.Track
-import kotlinx.coroutines.flow.Flow
+import com.practicum.myapp.domain.model.HistoryTrack
+import com.practicum.myapp.domain.model.Track
 
 /**
  * Репозиторий для хранения и получения истории прослушиваний.
@@ -10,15 +10,15 @@ interface HistoryRepository {
     /**
      * Добавить трек в историю.
      */
-    suspend fun addTrack(track: Track)
+    fun addTrack(track: Track)
 
     /**
      * Очистить всю историю.
      */
-    suspend fun clearHistory()
+    fun clearHistory()
 
     /**
-     * Получить поток текущей истории.
+     * Получить текущую историю.
      */
-    fun getHistory(): Flow<List<Track>>
+    fun getHistory(): List<HistoryTrack>
 }

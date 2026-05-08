@@ -1,46 +1,44 @@
 package com.practicum.myapp.data.repository
 
-import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.practicum.myapp.Track
+import com.practicum.myapp.domain.model.HistoryTrack
+import com.practicum.myapp.domain.model.Track
 import com.practicum.myapp.domain.repositories.HistoryRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * Реализация HistoryRepository, сохраняющая историю в SharedPreferences в виде JSON.
  */
-class HistoryRepositoryImpl(app: Application) : HistoryRepository {
+class HistoryRepositoryImpl(context: Context) : HistoryRepository {
     private val prefs: SharedPreferences =
-        app.getSharedPreferences("history_prefs", Context.MODE_PRIVATE)
+        context.getSharedPreferences("history_prefs", Context.MODE_PRIVATE)
     private val gson = Gson()
-    private val _history = MutableStateFlow<List<Track>>(loadHistory())
 
-    private fun loadHistory(): List<Track> {
+    private fun loadHistory(): List<HistoryTrack> {
         val json = prefs.getString("history", null) ?: return emptyList()
-        val type = object : TypeToken<List<Track>>() {}.type
+        val type = object : TypeToken<List<HistoryTrack>>() {}.type
         return gson.fromJson(json, type)
     }
 
-    private fun saveHistory(list: List<Track>) {
+    private fun saveHistory(list: List<HistoryTrack>) {
         val json = gson.toJson(list)
         prefs.edit().putString("history", json).apply()
     }
 
-    override suspend fun addTrack(track: Track) {
-        val updated = _history.value.toMutableList().apply { add(track) }
-        _history.value = updated
-        saveHistory(updated)
+    override fun addTrack(track: Track) {
+        val currentHistory = loadHistory().toMutableList()
+        val historyTrack = HistoryTrack.fromTrack(track)
+        // Удаляем если уже есть и добавляем в начало
+        currentHistory.removeAll { it.trackId == historyTrack.trackId }
+        currentHistory.add(0, historyTrack)
+        saveHistory(currentHistory)
     }
 
-    override suspend fun clearHistory() {
-        _history.value = emptyList()
+    override fun clearHistory() {
         saveHistory(emptyList())
     }
 
-    override fun getHistory(): Flow<List<Track>> = _history.asStateFlow()
+    override fun getHistory(): List<HistoryTrack> = loadHistory()
 }

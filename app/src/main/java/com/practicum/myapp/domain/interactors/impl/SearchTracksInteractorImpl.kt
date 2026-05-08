@@ -1,15 +1,17 @@
+package com.practicum.myapp.domain.interactors.impl
 
-package com.practicum.myapp.domain.interactors
-
+import com.practicum.myapp.domain.interactors.ISearchTracksInteractor
 import com.practicum.myapp.domain.repositories.TrackRepository
 import com.practicum.myapp.Track
 import kotlinx.coroutines.flow.first
 
 /**
- * Интерактор для поиска треков.
+ * Реализация {@link ISearchTracksInteractor}.
  */
-class SearchTracksInteractor(private val trackRepository: TrackRepository) {
-    suspend fun search(query: String): List<Track> {
+class SearchTracksInteractorImpl(
+    private val trackRepository: TrackRepository
+) : ISearchTracksInteractor {
+    override suspend fun search(query: String): List<Track> {
         val domainTracks = trackRepository.searchTracks(query)
         // Convert domain Track to API Track
         return domainTracks.map { domainTrack ->
@@ -28,7 +30,7 @@ class SearchTracksInteractor(private val trackRepository: TrackRepository) {
         }
     }
 
-    suspend fun getAll(): List<Track> {
+    override suspend fun getAll(): List<Track> {
         val domainTracks = trackRepository.getAllTracks().first()
         // Convert domain Track to API Track
         return domainTracks.map { domainTrack ->

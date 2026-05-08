@@ -1,6 +1,6 @@
 package com.practicum.myapp.domain.repositories
 
-import com.practicum.myapp.Track
+import com.practicum.myapp.domain.model.Track
 import kotlinx.coroutines.flow.Flow
 
 /**

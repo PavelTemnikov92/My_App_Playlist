@@ -1,8 +1,7 @@
 package com.practicum.myapp.domain.interactor
 
-import com.practicum.myapp.Track
+import com.practicum.myapp.domain.model.Track
 import com.practicum.myapp.domain.repositories.HistoryRepository
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Интерактор для загрузки истории прослушиваний.
@@ -10,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 class LoadHistoryInteractor(
     private val historyRepository: HistoryRepository
 ) {
-    operator fun invoke(): Flow<List<Track>> {
-        return historyRepository.getHistory()
+    operator fun invoke(): List<Track> {
+        return historyRepository.getHistory().map { it.toTrack() }
     }
 }
