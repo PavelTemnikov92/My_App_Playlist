@@ -193,12 +193,12 @@ class PlayerActivity : AppCompatActivity() {
             Glide.with(this)
                 .load(artworkUrl)
                 .centerCrop()
-                .placeholder(R.drawable.cover_placeholder)
-                .error(R.drawable.cover_placeholder)
+                .placeholder(R.drawable.album)
+                .error(R.drawable.album)
                 .into(imageCover)
         } else {
             Glide.with(this)
-                .load(R.drawable.cover_placeholder)
+                .load(R.drawable.album)
                 .centerCrop()
                 .into(imageCover)
         }
