@@ -7,20 +7,25 @@ import androidx.preference.PreferenceManager
 class App : Application() {
     
     var darkTheme: Boolean = false
+
+
         private set
     
     override fun onCreate() {
         super.onCreate()
-        
+
         // Инициализация HistoryManager
         HistoryManager.init(this)
-        
+
+        // Инициализация InteractorCreator
+        com.practicum.myapp.presentation.interactor.Creator.init(this)
+
         // Получаем SharedPreferences
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        
+
         // Получаем сохранённое значение темы (по умолчанию false - светлая тема)
         darkTheme = prefs.getBoolean("dark_theme_enabled", false)
-        
+
         // Применяем тему
         applyTheme(darkTheme)
     }

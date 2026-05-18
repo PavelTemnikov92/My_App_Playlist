@@ -1,28 +1,26 @@
-package com.practicum.myapp
+package com.practicum.myapp.presentation.ui
 
 import android.content.Context
-import android.content.Intent
-import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.ProgressBar
-
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.practicum.myapp.R
 import com.practicum.myapp.api.RetrofitClient
+import com.practicum.myapp.data.repository.HistoryRepositoryImpl
+import com.practicum.myapp.ItunesResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -59,6 +57,9 @@ class SearchActivity : AppCompatActivity() {
 
     // ProgressBar
     private lateinit var progressBar: com.google.android.material.progressindicator.CircularProgressIndicator
+    
+    // History Repository
+    private val historyRepository = HistoryRepositoryImpl(applicationContext)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,7 +105,7 @@ class SearchActivity : AppCompatActivity() {
         // Адаптер для результатов поиска
         trackAdapter = TrackAdapter { track ->
             // Добавление трека в историю при клике
-            HistoryManager.addTrack(track)
+            historyRepository.addTrack(track)
             // Скрыть историю после добавления трека
             hideHistorySection()
         }
@@ -114,7 +115,7 @@ class SearchActivity : AppCompatActivity() {
         // Адаптер для истории
         historyAdapter = TrackAdapter { track ->
             // При клике на трек в истории - добавляем его снова (перемещаем вверх)
-            HistoryManager.addTrack(track)
+            historyRepository.addTrack(track)
             loadHistory()
         }
         historyRecyclerView.adapter = historyAdapter
@@ -144,8 +145,7 @@ class SearchActivity : AppCompatActivity() {
 
         // TextWatcher для отслеживания текста с debounce
         searchEditText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 clearSearchButton.visibility = if (p0.isNullOrEmpty()) {
@@ -170,8 +170,7 @@ class SearchActivity : AppCompatActivity() {
                 performSearchWithDebounce(p0?.toString() ?: "")
             }
 
-            override fun afterTextChanged(p0: Editable?) {
-            }
+            override fun afterTextChanged(p0: Editable?) {}
         })
 
         // Отслеживание фокуса поля поиска
@@ -235,7 +234,7 @@ class SearchActivity : AppCompatActivity() {
 
         // Кнопка очистки истории
         clearHistoryButton.setOnClickListener {
-            HistoryManager.clearHistory()
+            historyRepository.clearHistory()
             hideHistorySection()
         }
 
@@ -244,7 +243,18 @@ class SearchActivity : AppCompatActivity() {
 
     private fun setupKeyboardListener() {
         val rootView = findViewById<View>(android.R.id.content)
-        rootView.viewTreeObserver.addOnGlobalLayoutListener(keyboardLayoutListener)
+        rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            val rect = android.graphics.Rect()
+            rootView.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = rootView.rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+            
+            if (keypadHeight > screenHeight * 0.15) {
+                // Keyboard is showing
+            } else {
+                // Keyboard is hidden
+            }
+        }
     }
 
     private fun updateClearButtonVisibility() {
@@ -323,7 +333,22 @@ class SearchActivity : AppCompatActivity() {
                     if (results.isEmpty()) {
                         showEmptyResult()
                     } else {
-                        trackAdapter.updateTracks(results)
+                        // Convert API Track to domain Track
+                        val domainTracks = results.map { apiTrack ->
+                            com.practicum.myapp.domain.model.Track(
+                                trackId = apiTrack.trackId,
+                                trackName = apiTrack.trackName,
+                                artistName = apiTrack.artistName,
+                                trackTimeMillis = apiTrack.trackTimeMillis,
+                                artworkUrl100 = apiTrack.artworkUrl100,
+                                collectionName = apiTrack.collectionName,
+                                releaseDate = apiTrack.releaseDate,
+                                primaryGenreName = apiTrack.primaryGenreName,
+                                country = apiTrack.country,
+                                previewUrl = apiTrack.previewUrl
+                            )
+                        }
+                        trackAdapter.updateTracks(domainTracks)
                         showRecyclerView()
                     }
                 } else {
@@ -359,7 +384,7 @@ class SearchActivity : AppCompatActivity() {
     }
     
     private fun loadHistory() {
-        val history = HistoryManager.getHistory()
+        val history = historyRepository.getHistory()
 
         // Скрываем результаты поиска при показе истории
         hideSearchResults()
@@ -398,57 +423,13 @@ class SearchActivity : AppCompatActivity() {
         
         if (hasFocus && isTextEmpty) {
             loadHistory()
-        } else {
-            hideHistorySection()
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("search_text", searchText)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        searchText = savedInstanceState.getString("search_text", "")
-        searchEditText.setText(searchText)
-        updateClearButtonVisibility()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        val rootView = findViewById<View>(android.R.id.content)
-        rootView.viewTreeObserver.removeOnGlobalLayoutListener(keyboardLayoutListener)
-        // Очищаем debounce callback
         searchRunnable?.let {
             searchHandler.removeCallbacks(it)
-        }
-    }
-
-    private val keyboardLayoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
-        private var isKeyboardShowing = false
-        private var initialHeight = 0
-
-        override fun onGlobalLayout() {
-            val rootView = findViewById<View>(android.R.id.content)
-            val rect = Rect()
-            rootView.getWindowVisibleDisplayFrame(rect)
-            val currentHeight = rect.height()
-
-            if (initialHeight == 0) {
-                initialHeight = currentHeight
-            }
-
-            val heightDifference = initialHeight - currentHeight
-            val keyboardThreshold = 200
-
-            val isKeyboardDetected = heightDifference > keyboardThreshold
-
-            if (isKeyboardDetected && !isKeyboardShowing) {
-                isKeyboardShowing = true
-            } else if (!isKeyboardDetected && isKeyboardShowing) {
-                isKeyboardShowing = false
-            }
         }
     }
 }

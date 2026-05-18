@@ -36,7 +36,7 @@
             android:clipToOutline="true"
             android:contentDescription="@string/cover_description"
             android:scaleType="centerCrop"
-            android:src="@drawable/cover_placeholder"
+            android:src="@drawable/album"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/backButton"
